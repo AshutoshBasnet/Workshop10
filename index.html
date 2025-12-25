@@ -1,9 +1,416 @@
-<h1>EC2 Details</h1>
-<p>Served by Load balancer/Ashutosh Basnet/Helloooo</p>
-<pre>
-ID: {{INSTANCE_ID}}
-Type: {{INSTANCE_TYPE}}
-AZ: {{AVAILABILITY_ZONE}}
-Private IP: {{LOCAL_IPV4}}
-Public IP: {{PUBLIC_IPV4}}
-</pre>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard-Controlled Car</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 70%, #90EE90 70%, #90EE90 100%);
+            font-family: Arial, sans-serif;
+        }
+
+        #gameCanvas {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.8;
+            animation: float 20s linear infinite;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 30px;
+            top: 10%;
+            left: -100px;
+        }
+
+        .cloud1::before {
+            width: 40px;
+            height: 40px;
+            top: -15px;
+            left: 15px;
+        }
+
+        .cloud1::after {
+            width: 50px;
+            height: 35px;
+            top: -10px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 100px;
+            height: 35px;
+            top: 25%;
+            left: -150px;
+            animation-delay: -10s;
+        }
+
+        .cloud2::before {
+            width: 50px;
+            height: 50px;
+            top: -20px;
+            left: 20px;
+        }
+
+        .cloud2::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 15px;
+        }
+
+        @keyframes float {
+            to {
+                transform: translateX(calc(100vw + 200px));
+            }
+        }
+
+        .road-line {
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background: white;
+            top: 50%;
+            animation: roadMove 1s linear infinite;
+        }
+
+        @keyframes roadMove {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-100px);
+            }
+        }
+
+        #car {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            transition: transform 0.1s ease-out;
+        }
+
+        .car-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .car-top {
+            position: absolute;
+            width: 50px;
+            height: 20px;
+            background: #e74c3c;
+            border-radius: 10px 10px 0 0;
+            left: 20px;
+            top: 5px;
+        }
+
+        .car-main {
+            position: absolute;
+            width: 90px;
+            height: 20px;
+            background: #c0392b;
+            border-radius: 8px;
+            left: 5px;
+            top: 25px;
+        }
+
+        .window {
+            position: absolute;
+            background: #3498db;
+            border: 2px solid #2c3e50;
+            border-radius: 3px;
+        }
+
+        .window-front {
+            width: 18px;
+            height: 12px;
+            left: 32px;
+            top: 8px;
+        }
+
+        .window-back {
+            width: 15px;
+            height: 12px;
+            left: 12px;
+            top: 8px;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #2c3e50;
+            border-radius: 50%;
+            border: 3px solid #34495e;
+            top: 32px;
+            animation: rotate 0.5s linear infinite;
+        }
+
+        .wheel.paused {
+            animation-play-state: paused;
+        }
+
+        .wheel-front {
+            left: 65px;
+        }
+
+        .wheel-back {
+            left: 15px;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .light {
+            position: absolute;
+            width: 8px;
+            height: 6px;
+            background: #f39c12;
+            border-radius: 2px;
+            left: 90px;
+            top: 30px;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        #speed {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            min-width: 150px;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .trunk {
+            width: 15px;
+            height: 30px;
+            background: #8B4513;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .leaves {
+            width: 40px;
+            height: 40px;
+            background: #228B22;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .leaves::before,
+        .leaves::after {
+            content: '';
+            width: 35px;
+            height: 35px;
+            background: #228B22;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .leaves::before {
+            left: -15px;
+            top: 10px;
+        }
+
+        .leaves::after {
+            right: -15px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameCanvas">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+
+        <div id="car">
+            <div class="car-body">
+                <div class="car-top">
+                    <div class="window window-front"></div>
+                    <div class="window window-back"></div>
+                </div>
+                <div class="car-main"></div>
+                <div class="wheel wheel-front"></div>
+                <div class="wheel wheel-back"></div>
+                <div class="light"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls">
+        Use Arrow Keys: ← → ↑ ↓ to control the car
+    </div>
+
+    <div id="speed">
+        Speed: <span id="speedValue">0</span> km/h
+    </div>
+
+    <script>
+        const car = document.getElementById('car');
+        const speedDisplay = document.getElementById('speedValue');
+        const wheels = document.querySelectorAll('.wheel');
+        
+        let x = 50;
+        let y = window.innerHeight / 2 - 25;
+        let velocityX = 0;
+        let velocityY = 0;
+        const acceleration = 0.5;
+        const maxSpeed = 8;
+        const friction = 0.92;
+        
+        const keys = {};
+        
+        car.style.left = x + 'px';
+        car.style.top = y + 'px';
+
+        // Create road lines
+        for (let i = 0; i < 15; i++) {
+            const line = document.createElement('div');
+            line.className = 'road-line';
+            line.style.left = (i * 100) + 'px';
+            document.getElementById('gameCanvas').appendChild(line);
+        }
+
+        // Create trees
+        for (let i = 0; i < 5; i++) {
+            const tree = document.createElement('div');
+            tree.className = 'tree';
+            tree.style.left = (Math.random() * 80 + 10) + '%';
+            tree.innerHTML = '<div class="trunk"></div><div class="leaves"></div>';
+            document.getElementById('gameCanvas').appendChild(tree);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            e.preventDefault();
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+            e.preventDefault();
+        });
+
+        function updateCarPosition() {
+            // Handle acceleration
+            if (keys['ArrowRight']) {
+                velocityX += acceleration;
+            }
+            if (keys['ArrowLeft']) {
+                velocityX -= acceleration;
+            }
+            if (keys['ArrowUp']) {
+                velocityY -= acceleration;
+            }
+            if (keys['ArrowDown']) {
+                velocityY += acceleration;
+            }
+
+            // Limit speed
+            velocityX = Math.max(-maxSpeed, Math.min(maxSpeed, velocityX));
+            velocityY = Math.max(-maxSpeed, Math.min(maxSpeed, velocityY));
+
+            // Apply friction
+            velocityX *= friction;
+            velocityY *= friction;
+
+            // Update position
+            x += velocityX;
+            y += velocityY;
+
+            // Boundary checking
+            const maxX = window.innerWidth - 100;
+            const maxY = window.innerHeight - 50;
+            
+            x = Math.max(0, Math.min(maxX, x));
+            y = Math.max(0, Math.min(maxY, y));
+
+            // Stop at boundaries
+            if (x <= 0 || x >= maxX) velocityX = 0;
+            if (y <= 0 || y >= maxY) velocityY = 0;
+
+            car.style.left = x + 'px';
+            car.style.top = y + 'px';
+
+            // Calculate rotation based on movement
+            const angle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
+            if (Math.abs(velocityX) > 0.5 || Math.abs(velocityY) > 0.5) {
+                car.style.transform = `rotate(${angle}deg)`;
+            }
+
+            // Update speed display
+            const speed = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+            speedDisplay.textContent = Math.round(speed * 10);
+
+            // Animate wheels based on speed
+            wheels.forEach(wheel => {
+                if (speed > 0.5) {
+                    wheel.classList.remove('paused');
+                    wheel.style.animationDuration = (0.5 / speed) + 's';
+                } else {
+                    wheel.classList.add('paused');
+                }
+            });
+
+            requestAnimationFrame(updateCarPosition);
+        }
+
+        updateCarPosition();
+    </script>
+</body>
+</html>
